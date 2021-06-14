@@ -7,7 +7,7 @@ const knex = require('knex');
 const db = knex({
 	client: 'pg',
 	connection: {
-		host: '127.0.0.1',
+		host: 'postgresql-sinuous-07846',
 		port: '5433',
 		user: 'postgres',
 		password: 'admin',
@@ -23,7 +23,7 @@ app.use(cors());
 
 
 app.get('/',(req, res)=> {
-	db.select('*').from('users2')
+	db.select('*').from('users')
 	.then(data => res.json(data))
 	.catch(err => res.status(400).json('unable to get users'))
 })
@@ -34,7 +34,7 @@ app.post('/signin',(req, res) => {
 	.then(data => {
 		const isValid = bcrypt.compareSync(req.body.password, data[0].hash);
 		if (isValid){
-			return db.select('*').from('users2')
+			return db.select('*').from('users')
 			.where('email','=',req.body.email)
 			.then(user => {
 				res.json(user[0])
@@ -48,7 +48,7 @@ app.post('/signin',(req, res) => {
 })
 
 app.post('/updateLogin', (req,res) => {
-	db.select('*').from('users2')
+	db.select('*').from('users')
 	.where('email','=',req.body.email)
 	.update({
 		login: new Date()})
@@ -66,7 +66,7 @@ app.post('/register', (req, res) => {
 		.into('login')
 		.returning('email')
 		.then(loginEmail => {
-		  return trx('users2')
+		  return trx('users')
 			.returning('*')
 			.insert({
 			  email: loginEmail[0],
@@ -86,7 +86,7 @@ app.post('/register', (req, res) => {
 
 app.post('/update', (req,res) => {
 		const { id, status } = req.body;
-		db.select('*').from('users2')
+		db.select('*').from('users')
 		.whereIn('id', id)
 		.update({
 			status: status})
@@ -95,7 +95,7 @@ app.post('/update', (req,res) => {
 
 app.delete('/del',(req,res) => {
 		const { id, email } = req.body;
-		db.select('*').from('users2')
+		db.select('*').from('users')
 		.whereIn('id', id)
 		.del()
 		.then(data => res.json(data))
